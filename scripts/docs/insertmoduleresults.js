@@ -17,7 +17,7 @@ module.exports = function insertModuleResults( path ) {
 
 	try {
 		const module = require( path );
-		return module( path );
+		return module();
 	} catch ( e ) {
 		console.error( e );
 	}
