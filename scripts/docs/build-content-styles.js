@@ -45,210 +45,208 @@ const shouldCommitChanges = process.argv.includes( '--commit' );
 
 logProcess( 'Gathering all CKEditor 5 modules...' );
 
-module.exports = function foo() {
-	return getCkeditor5ModulePaths()
-		.then( files => {
-			console.log( `Found ${ files.length } files.` );
-			logProcess( 'Filtering CKEditor 5 plugins...' );
+getCkeditor5ModulePaths()
+	.then( files => {
+		console.log( `Found ${ files.length } files.` );
+		logProcess( 'Filtering CKEditor 5 plugins...' );
 
-			let promise = Promise.resolve();
-			const ckeditor5Modules = [];
+		let promise = Promise.resolve();
+		const ckeditor5Modules = [];
 
-			for ( const modulePath of files ) {
-				promise = promise.then( () => {
-					return checkWhetherIsCKEditor5Plugin( modulePath )
-						.then( isModule => {
-							if ( isModule ) {
-								ckeditor5Modules.push( path.join( cwd, modulePath ) );
-							}
-						} );
-				} );
-			}
-
-			return promise.then( () => ckeditor5Modules );
-		} )
-		.then( ckeditor5Modules => {
-			console.log( `Found ${ ckeditor5Modules.length } plugins.` );
-			logProcess( 'Generating source file...' );
-
-			return mkdirp( DESTINATION_DIRECTORY ).then( () => generateCKEditor5Source( ckeditor5Modules ) );
-		} )
-		.then( ckeditor5Modules => {
-			foundModules = ckeditor5Modules;
-
-			logProcess( 'Building the editor...' );
-			const webpackConfig = getWebpackConfig();
-
-			return runWebpack( webpackConfig );
-		} )
-		.then( () => {
-			logProcess( 'Preparing the content styles file...' );
-
-			// All variables are placed inside the `:root` selector. Let's extract their names and values as a map.
-			const cssVariables = new Map( contentRules.variables
-				.map( rule => {
-					// Let's extract all of them as an array of pairs: [ name, value ].
-					const allRules = [];
-					let match;
-
-					while ( ( match = VARIABLE_DEFINITION_REGEXP.exec( rule.css ) ) ) {
-						allRules.push( [ match[ 1 ], match[ 2 ] ] );
-					}
-
-					return allRules;
-				} )
-				.reduce( ( previousValue, currentValue ) => {
-					// And simplify nested arrays as a flattened array.
-					previousValue.push( ...currentValue );
-
-					return previousValue;
-				}, [] ) );
-
-			// CSS variables that are used by the `.ck-content` selector.
-			const usedVariables = new Set();
-
-			// `.ck-content` selectors.
-			const selectorCss = transformCssRules( contentRules.selector );
-
-			// Find all CSS variables inside the `.ck-content` selector.
-			let match;
-
-			while ( ( match = VARIABLE_USAGE_REGEXP.exec( selectorCss ) ) ) {
-				usedVariables.add( match[ 1 ] );
-			}
-
-			// We need to also look at whether any of the used variables requires the value of other variables.
-			let clearRun = false;
-
-			// We need to process all variables as long as the entire collection won't be changed.
-			while ( !clearRun ) {
-				clearRun = true;
-
-				// For every used variable...
-				for ( const variable of usedVariables ) {
-					const value = cssVariables.get( variable );
-
-					let match;
-
-					// ...find its value and check whether it requires another variable.
-					while ( ( match = VARIABLE_USAGE_REGEXP.exec( value ) ) ) {
-						// If so, mark the entire `while()` block as it should be checked once again.
-						// Also, add the new variable to the used variables collection.
-						if ( !usedVariables.has( match[ 1 ] ) ) {
-							clearRun = false;
-							usedVariables.add( match[ 1 ] );
+		for ( const modulePath of files ) {
+			promise = promise.then( () => {
+				return checkWhetherIsCKEditor5Plugin( modulePath )
+					.then( isModule => {
+						if ( isModule ) {
+							ckeditor5Modules.push( path.join( cwd, modulePath ) );
 						}
+					} );
+			} );
+		}
+
+		return promise.then( () => ckeditor5Modules );
+	} )
+	.then( ckeditor5Modules => {
+		console.log( `Found ${ ckeditor5Modules.length } plugins.` );
+		logProcess( 'Generating source file...' );
+
+		return mkdirp( DESTINATION_DIRECTORY ).then( () => generateCKEditor5Source( ckeditor5Modules ) );
+	} )
+	.then( ckeditor5Modules => {
+		foundModules = ckeditor5Modules;
+
+		logProcess( 'Building the editor...' );
+		const webpackConfig = getWebpackConfig();
+
+		return runWebpack( webpackConfig );
+	} )
+	.then( () => {
+		logProcess( 'Preparing the content styles file...' );
+
+		// All variables are placed inside the `:root` selector. Let's extract their names and values as a map.
+		const cssVariables = new Map( contentRules.variables
+			.map( rule => {
+				// Let's extract all of them as an array of pairs: [ name, value ].
+				const allRules = [];
+				let match;
+
+				while ( ( match = VARIABLE_DEFINITION_REGEXP.exec( rule.css ) ) ) {
+					allRules.push( [ match[ 1 ], match[ 2 ] ] );
+				}
+
+				return allRules;
+			} )
+			.reduce( ( previousValue, currentValue ) => {
+				// And simplify nested arrays as a flattened array.
+				previousValue.push( ...currentValue );
+
+				return previousValue;
+			}, [] ) );
+
+		// CSS variables that are used by the `.ck-content` selector.
+		const usedVariables = new Set();
+
+		// `.ck-content` selectors.
+		const selectorCss = transformCssRules( contentRules.selector );
+
+		// Find all CSS variables inside the `.ck-content` selector.
+		let match;
+
+		while ( ( match = VARIABLE_USAGE_REGEXP.exec( selectorCss ) ) ) {
+			usedVariables.add( match[ 1 ] );
+		}
+
+		// We need to also look at whether any of the used variables requires the value of other variables.
+		let clearRun = false;
+
+		// We need to process all variables as long as the entire collection won't be changed.
+		while ( !clearRun ) {
+			clearRun = true;
+
+			// For every used variable...
+			for ( const variable of usedVariables ) {
+				const value = cssVariables.get( variable );
+
+				let match;
+
+				// ...find its value and check whether it requires another variable.
+				while ( ( match = VARIABLE_USAGE_REGEXP.exec( value ) ) ) {
+					// If so, mark the entire `while()` block as it should be checked once again.
+					// Also, add the new variable to the used variables collection.
+					if ( !usedVariables.has( match[ 1 ] ) ) {
+						clearRun = false;
+						usedVariables.add( match[ 1 ] );
 					}
 				}
 			}
+		}
 
-			const atRulesDefinitions = [];
+		const atRulesDefinitions = [];
 
-			// Additional at-rules.
-			for ( const atRuleName of Object.keys( contentRules.atRules ) ) {
-				const rules = transformCssRules( contentRules.atRules[ atRuleName ] )
-					.split( '\n' )
-					.map( line => `\t${ line }` )
-					.join( '\n' );
+		// Additional at-rules.
+		for ( const atRuleName of Object.keys( contentRules.atRules ) ) {
+			const rules = transformCssRules( contentRules.atRules[ atRuleName ] )
+				.split( '\n' )
+				.map( line => `\t${ line }` )
+				.join( '\n' );
 
-				atRulesDefinitions.push( `@${ atRuleName } {\n${ rules }\n}` );
-			}
+			atRulesDefinitions.push( `@${ atRuleName } {\n${ rules }\n}` );
+		}
 
-			// Build the final content of the CSS file.
-			let data = [
-				'/*',
-				` * CKEditor 5 (v${ version }) content styles.`,
-				` * Generated on ${ new Date().toUTCString() }.`,
-				` * For more information, check out ${ DOCUMENTATION_URL }`,
-				' */\n\n'
-			].join( '\n' );
+		// Build the final content of the CSS file.
+		let data = [
+			'/*',
+			` * CKEditor 5 (v${ version }) content styles.`,
+			` * Generated on ${ new Date().toUTCString() }.`,
+			` * For more information, check out ${ DOCUMENTATION_URL }`,
+			' */\n\n'
+		].join( '\n' );
 
-			data += ':root {\n';
+		data += ':root {\n';
 
-			for ( const variable of [ ...usedVariables ].sort() ) {
-				data += `\t${ variable }: ${ cssVariables.get( variable ) };\n`;
-			}
+		for ( const variable of [ ...usedVariables ].sort() ) {
+			data += `\t${ variable }: ${ cssVariables.get( variable ) };\n`;
+		}
 
-			data += '}\n\n';
-			data += selectorCss;
-			data += '\n';
-			data += atRulesDefinitions.join( '\n' );
+		data += '}\n\n';
+		data += selectorCss;
+		data += '\n';
+		data += atRulesDefinitions.join( '\n' );
 
-			return data;
-		} )
-		.then( () => {
-			console.log( `Content styles have been extracted to ${ path.join( DESTINATION_DIRECTORY, 'content-styles.css' ) }` );
+		return writeFile( path.join( DESTINATION_DIRECTORY, 'content-styles.css' ), data );
+	} )
+	.then( () => {
+		console.log( `Content styles have been extracted to ${ path.join( DESTINATION_DIRECTORY, 'content-styles.css' ) }` );
 
-			logProcess( 'Looking for new plugins...' );
+		logProcess( 'Looking for new plugins...' );
 
-			const newPlugins = findNewPlugins( foundModules, contentStylesDetails.plugins );
+		const newPlugins = findNewPlugins( foundModules, contentStylesDetails.plugins );
 
-			if ( newPlugins.length ) {
-				console.log( 'Found new plugins.' );
-				displayNewPluginsTable( newPlugins );
-			} else {
-				console.log(
-					'Previous and current versions of the content styles stylesheet were generated with the same set of plugins.' );
-			}
+		if ( newPlugins.length ) {
+			console.log( 'Found new plugins.' );
+			displayNewPluginsTable( newPlugins );
+		} else {
+			console.log( 'Previous and current versions of the content styles stylesheet were generated with the same set of plugins.' );
+		}
 
-			if ( !shouldCommitChanges ) {
+		if ( !shouldCommitChanges ) {
+			logProcess( 'Done.' );
+
+			return Promise.resolve();
+		}
+
+		if ( newPlugins.length ) {
+			logProcess( 'Updating the content styles details file...' );
+
+			tools.updateJSONFile( CONTENT_STYLES_DETAILS_PATH, json => {
+				const newPluginsObject = {};
+
+				for ( const data of foundModules ) {
+					const modulePath = normalizePath( data.modulePath.replace( cwd + path.sep, '' ) );
+					newPluginsObject[ modulePath ] = data.pluginName;
+				}
+
+				json.plugins = newPluginsObject;
+
+				return json;
+			} );
+		}
+
+		logProcess( 'Updating the content styles guide...' );
+
+		const promises = [
+			readFile( CONTENT_STYLES_GUIDE_PATH ),
+			readFile( path.join( DESTINATION_DIRECTORY, 'content-styles.css' ) )
+		];
+
+		return Promise.all( promises )
+			.then( ( [ guideContent, newContentStyles ] ) => {
+				guideContent = guideContent.replace( /```css([^`]+)```/, '```css\n' + newContentStyles + '\n```' );
+
+				return writeFile( CONTENT_STYLES_GUIDE_PATH, guideContent );
+			} )
+			.then( () => {
+				logProcess( 'Saving and committing...' );
+
+				const contentStyleGuide = CONTENT_STYLES_GUIDE_PATH.replace( cwd + path.sep, '' );
+				const contentStyleDetails = CONTENT_STYLES_DETAILS_PATH.replace( cwd + path.sep, '' );
+
+				// Commit the documentation.
+				if ( exec( `git diff --name-only ${ contentStyleGuide } ${ contentStyleDetails }` ).trim().length ) {
+					exec( `git add ${ contentStyleGuide } ${ contentStyleDetails }` );
+					exec( 'git commit -m "Docs (ckeditor5): Updated the content styles stylesheet."' );
+
+					console.log( 'Successfully updated the content styles guide.' );
+				} else {
+					console.log( 'Nothing to commit. The content styles guide is up to date.' );
+				}
+
 				logProcess( 'Done.' );
-
-				return Promise.resolve();
-			}
-
-			if ( newPlugins.length ) {
-				logProcess( 'Updating the content styles details file...' );
-
-				tools.updateJSONFile( CONTENT_STYLES_DETAILS_PATH, json => {
-					const newPluginsObject = {};
-
-					for ( const data of foundModules ) {
-						const modulePath = normalizePath( data.modulePath.replace( cwd + path.sep, '' ) );
-						newPluginsObject[ modulePath ] = data.pluginName;
-					}
-
-					json.plugins = newPluginsObject;
-
-					return json;
-				} );
-			}
-
-			logProcess( 'Updating the content styles guide...' );
-
-			const promises = [
-				readFile( CONTENT_STYLES_GUIDE_PATH ),
-				readFile( path.join( DESTINATION_DIRECTORY, 'content-styles.css' ) )
-			];
-
-			return Promise.all( promises )
-				.then( ( [ guideContent, newContentStyles ] ) => {
-					guideContent = guideContent.replace( /```css([^`]+)```/, '```css\n' + newContentStyles + '\n```' );
-
-					return writeFile( CONTENT_STYLES_GUIDE_PATH, guideContent );
-				} )
-				.then( () => {
-					logProcess( 'Saving and committing...' );
-
-					const contentStyleGuide = CONTENT_STYLES_GUIDE_PATH.replace( cwd + path.sep, '' );
-					const contentStyleDetails = CONTENT_STYLES_DETAILS_PATH.replace( cwd + path.sep, '' );
-
-					// Commit the documentation.
-					if ( exec( `git diff --name-only ${ contentStyleGuide } ${ contentStyleDetails }` ).trim().length ) {
-						exec( `git add ${ contentStyleGuide } ${ contentStyleDetails }` );
-						exec( 'git commit -m "Docs (ckeditor5): Updated the content styles stylesheet."' );
-
-						console.log( 'Successfully updated the content styles guide.' );
-					} else {
-						console.log( 'Nothing to commit. The content styles guide is up to date.' );
-					}
-
-					logProcess( 'Done.' );
-				} );
-		} )
-		.catch( err => {
-			console.log( err );
-		} ); };
+			} );
+	} )
+	.catch( err => {
+		console.log( err );
+	} );
 
 /**
  * Resolves the promise with an array of paths to CKEditor 5 modules.
@@ -309,8 +307,7 @@ function generateCKEditor5Source( ckeditor5Modules ) {
 		''
 	];
 
-	for ( let { modulePath, pluginName } of ckeditor5Modules ) {
-		modulePath = modulePath.split( '\u005C' ).join( '/' );
+	for ( const { modulePath, pluginName } of ckeditor5Modules ) {
 		sourceFileContent.push( `import ${ pluginName } from '${ modulePath }';` );
 	}
 
