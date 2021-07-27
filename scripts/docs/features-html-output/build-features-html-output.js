@@ -18,8 +18,6 @@ const THIRD_PARTY_PACKAGES_LOCAL_DIR = 'scripts/docs/features-html-output/third-
  * - parse and prepare the data for generating the features HTML output overview,
  * - use the parsed data to create tables for each package, that contains all plugins and their possible HTML output.
  *
- * Returns total number of parsed files.
- *
  * Each generated table contains 2 columns: "Plugin" and "HTML output". Each table cell in the "Plugin" column has a human-readable name of
  * the plugin (which is a link to the feature documentation) and the name of the class used to create the plugin (which is a link to the API
  * documentation). For each row in the "Plugin" column there is at least one row in the "HTML output" column. If given plugin does not
@@ -47,9 +45,7 @@ const THIRD_PARTY_PACKAGES_LOCAL_DIR = 'scripts/docs/features-html-output/third-
  *
  * Generated table is preceded by the package name as a heading and the link to a source package metadata file on GitHub.
  *
- * @returns {Object} result
- * @returns {String} result.output Generated HTML markup.
- * @returns {Number} result.numberOfPackages Total number of package metadata files, that have been parsed.
+ * @returns {String} Generated HTML markup.
  */
 module.exports = function createHtmlOutputMarkup() {
 	const parsedFiles = parseFiles()
