@@ -11,7 +11,8 @@
     "compatibility",
     "content compatibility",
     "html support",
-    "generic html support"
+    "generic html support",
+    "ckeditor5-dll"
   ],
   "main": "src/index.js",
   "dependencies": {
@@ -25,12 +26,14 @@
     "@ckeditor/ckeditor5-cloud-services": "^29.0.0",
     "@ckeditor/ckeditor5-code-block": "^29.0.0",
     "@ckeditor/ckeditor5-core": "^29.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^25.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^25.3.0",
     "@ckeditor/ckeditor5-easy-image": "^29.0.0",
     "@ckeditor/ckeditor5-editor-classic": "^29.0.0",
     "@ckeditor/ckeditor5-engine": "^29.0.0",
+    "@ckeditor/ckeditor5-enter": "^29.0.0",
     "@ckeditor/ckeditor5-essentials": "^29.0.0",
     "@ckeditor/ckeditor5-font": "^29.0.0",
+    "@ckeditor/ckeditor5-heading": "^29.0.0",
     "@ckeditor/ckeditor5-highlight": "^29.0.0",
     "@ckeditor/ckeditor5-horizontal-line": "^29.0.0",
     "@ckeditor/ckeditor5-html-embed": "^29.0.0",
@@ -38,8 +41,11 @@
     "@ckeditor/ckeditor5-indent": "^29.0.0",
     "@ckeditor/ckeditor5-link": "^29.0.0",
     "@ckeditor/ckeditor5-list": "^29.0.0",
+    "@ckeditor/ckeditor5-media-embed": "^29.0.0",
     "@ckeditor/ckeditor5-page-break": "^29.0.0",
     "@ckeditor/ckeditor5-paragraph": "^29.0.0",
+    "@ckeditor/ckeditor5-paste-from-office": "^29.0.0",
+    "@ckeditor/ckeditor5-source-editing": "^29.0.0",
     "@ckeditor/ckeditor5-table": "^29.0.0",
     "@ckeditor/ckeditor5-theme-lark": "^29.0.0",
     "@ckeditor/ckeditor5-utils": "^29.0.0",
@@ -57,7 +63,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/ckeditor/ckeditor5.git",
-    "directory": "packages/ckeditor5-language"
+    "directory": "packages/ckeditor5-html-support"
   },
   "files": [
     "lang",

@@ -7,7 +7,8 @@
     "ckeditor5",
     "ckeditor 5",
     "ckeditor5-feature",
-    "ckeditor5-plugin"
+    "ckeditor5-plugin",
+    "ckeditor5-dll"
   ],
   "main": "src/index.js",
   "dependencies": {
@@ -18,7 +19,7 @@
     "@ckeditor/ckeditor5-clipboard": "^29.0.0",
     "@ckeditor/ckeditor5-cloud-services": "^29.0.0",
     "@ckeditor/ckeditor5-core": "^29.0.0",
-    "@ckeditor/ckeditor5-dev-utils": "^25.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^25.3.0",
     "@ckeditor/ckeditor5-easy-image": "^29.0.0",
     "@ckeditor/ckeditor5-engine": "^29.0.0",
     "@ckeditor/ckeditor5-editor-classic": "^29.0.0",
