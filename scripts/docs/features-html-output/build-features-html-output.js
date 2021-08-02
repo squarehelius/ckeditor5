@@ -10,6 +10,12 @@ const path = require( 'path' );
 const glob = require( 'glob' );
 const chalk = require( 'chalk' );
 
+// When executing the script from the `{@exec...}` expression, relative paths used in the script will not work as this script can be
+// executed in the documentation builder context. Let current work directory points to CKEditor 5 repository.
+// After building the HTML output, CWD will be restored.
+const CURRENT_WORK_DIRECTORY = process.cwd();
+const CKEDITOR5_ROOT = path.join( __dirname, '..', '..', '..' );
+
 const THIRD_PARTY_PACKAGES_LOCAL_DIR = 'scripts/docs/features-html-output/third-party-packages';
 
 /**
@@ -48,6 +54,8 @@ const THIRD_PARTY_PACKAGES_LOCAL_DIR = 'scripts/docs/features-html-output/third-
  * @returns {String} Generated HTML markup.
  */
 module.exports = function createHtmlOutputMarkup() {
+	process.chdir( CKEDITOR5_ROOT );
+
 	const parsedFiles = parseFiles()
 		.map( packageMetadata => {
 			const outputRows = packageMetadata.plugins
@@ -104,6 +112,8 @@ module.exports = function createHtmlOutputMarkup() {
 				'</table>'
 			);
 		} );
+
+	process.chdir( CURRENT_WORK_DIRECTORY );
 
 	return parsedFiles.join( '' );
 };
