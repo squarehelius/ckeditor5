@@ -41,4 +41,4 @@ The data used to generate the following tables comes from the package metadata. 
 	}
 </style>
 
-{@exec ..\scripts\docs\features-html-output\build-features-html-output.js}
+{@exec ../scripts/docs/features-html-output/build-features-html-output.js}
