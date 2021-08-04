@@ -31,6 +31,13 @@ import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation';
 import CloudServices from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
 
+import BalloonToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/balloon/balloontoolbar';
+import HeadingButtonsUI from '@ckeditor/ckeditor5-heading/src/headingbuttonsui';
+import ParagraphButtonUI from '@ckeditor/ckeditor5-paragraph/src/paragraphbuttonui';
+import { Base64UploadAdapter } from '@ckeditor/ckeditor5-upload';
+
+import Structurize from './structurize/structurize';
+
 export default class ClassicEditor extends ClassicEditorBase {}
 
 // Plugins to include in the build.
@@ -58,15 +65,32 @@ ClassicEditor.builtinPlugins = [
 	PasteFromOffice,
 	Table,
 	TableToolbar,
-	TextTransformation
+	TextTransformation,
+	BalloonToolbar,
+	HeadingButtonsUI,
+	ParagraphButtonUI,
+  Base64UploadAdapter,
+	Structurize
 ];
 
 // Editor configuration.
 ClassicEditor.defaultConfig = {
+	balloonToolbar: {
+		items: [
+                  'structurize',
+                  '|',
+                	'paragraph', 'heading1', 'heading2', 'heading3',
+                	'|',
+                	'bulletedList', 'numberedList',
+                	'|',
+                	'blockQuote', 'uploadImage'
+            	]
+	},
 	toolbar: {
 		items: [
 			'heading',
 			'|',
+      'structurize',
 			'bold',
 			'italic',
 			'link',
@@ -81,7 +105,8 @@ ClassicEditor.defaultConfig = {
 			'insertTable',
 			'mediaEmbed',
 			'undo',
-			'redo'
+			'redo',
+			"insertImage"
 		]
 	},
 	image: {
