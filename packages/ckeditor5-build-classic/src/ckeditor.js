@@ -37,6 +37,8 @@ import ParagraphButtonUI from '@ckeditor/ckeditor5-paragraph/src/paragraphbutton
 import { Base64UploadAdapter } from '@ckeditor/ckeditor5-upload';
 
 import Structurize from './structurize/structurize';
+import ImageRecUI from './tableupload/imagerecui';
+import ImageTextRecUI from './tableupload/imagetextrecui';
 
 export default class ClassicEditor extends ClassicEditorBase {}
 
@@ -70,7 +72,10 @@ ClassicEditor.builtinPlugins = [
 	HeadingButtonsUI,
 	ParagraphButtonUI,
   Base64UploadAdapter,
-	Structurize
+	Structurize,
+  // TableUploadAdpater,
+  ImageRecUI,
+  ImageTextRecUI
 ];
 
 // Editor configuration.
@@ -116,7 +121,10 @@ ClassicEditor.defaultConfig = {
 			'imageStyle:side',
 			'|',
 			'toggleImageCaption',
-			'imageTextAlternative'
+			'imageTextAlternative',
+      '|',
+      'imageTextRec',
+      'imageRec'
 		]
 	},
 	table: {

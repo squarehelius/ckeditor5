@@ -46,7 +46,8 @@
     "@ckeditor/ckeditor5-table": "^29.0.0",
     "@ckeditor/ckeditor5-typing": "^29.0.0",
     "@ckeditor/ckeditor5-ui": "^29.0.0",
-    "@ckeditor/ckeditor5-upload": "^29.0.0"
+    "@ckeditor/ckeditor5-upload": "^29.0.0",
+    "axios": "^0.21.1"
   },
   "devDependencies": {
     "@ckeditor/ckeditor5-core": "^29.0.0",
